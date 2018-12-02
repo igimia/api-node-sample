@@ -1,13 +1,28 @@
-var http = require('http');
+const Koa = require('koa');
+const app = new Koa();
 
-// HTTPサーバーのイベントハンドラを定義
-http.createServer(function (req, res) {
+const sample = require('./api/index');
 
-    // HTTPヘッダを出力
-    res.writeHead(200, {'Content-Type': 'text/plain'});
 
-    // レスポンスの中身を出力
-    res.end('Hello World\n');
 
-}).listen(3000, '172.19.0.3'); // 127.0.0.1の1337番ポートで待機
+// logger
 
+app.use(async (ctx, next) => {
+  await next();
+  const rt = ctx.response.get('X-Response-Time');
+  console.log(`${ctx.method} ${ctx.url} - ${rt}`);
+});
+
+// x-response-time
+
+app.use(async (ctx, next) => {
+  const start = Date.now();
+  await next();
+  const ms = Date.now() - start;
+  ctx.set('X-Response-Time', `${ms}ms`);
+});
+
+
+app.use(sample.routes());
+
+app.listen(3000, '172.19.0.3');

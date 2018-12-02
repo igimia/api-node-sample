@@ -5,7 +5,8 @@ services:
     image: node:latest
     ports:
       - "3000:3000"
-    command: node /opt/api/app.js
+    working_dir: /opt/api/
+    command: ./node_modules/.bin/nodemon app.js
     volumes:
       - ./volumes:/opt/api
     links:
